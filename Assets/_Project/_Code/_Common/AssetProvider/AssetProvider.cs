@@ -76,5 +76,8 @@ public sealed class AssetProvider : IDisposable
         return false;
     }
     
-    public void Dispose() => CleanUp();
+    public void Dispose()
+    {
+        CleanUp();
+    } 
 }

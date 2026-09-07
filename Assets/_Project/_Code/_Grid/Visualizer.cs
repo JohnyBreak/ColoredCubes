@@ -1,9 +1,10 @@
+using System;
 using _Project._Code.Configs;
 using UnityEngine;
 
 namespace _Project._Code._Grid
 {
-    public class Visualizer
+    public class Visualizer : IDisposable
     {
         private const string LogKey = "Visualizer";
         private readonly GridData _data;
@@ -61,6 +62,11 @@ namespace _Project._Code._Grid
             }
 
             return ColorUtility.TryParseHtmlString(hexColor, out color);
+        }
+
+        public void Dispose()
+        {
+            _materialsContainer?.Dispose();
         }
     }
 }

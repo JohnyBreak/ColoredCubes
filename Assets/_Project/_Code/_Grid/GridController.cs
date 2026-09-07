@@ -34,8 +34,6 @@ namespace _Project._Code._Grid
                 Debug.LogError($"[{LogKey}] _inputReader is null");
                 return;
             }
-
-            _inputReader.MoveClickedEvent += OnMoveClicked;
             
             _spawner = new GridSpawner(
                 _assetProvider,
@@ -49,6 +47,8 @@ namespace _Project._Code._Grid
             RandomStartIndex();
 
             UpdateVisual();
+            
+            _inputReader.MoveClickedEvent += OnMoveClicked;
         }
 
         private void OnMoveClicked(Vector2 input)
@@ -86,6 +86,8 @@ namespace _Project._Code._Grid
 
         public void Dispose()
         {
+            _visualizer?.Dispose();
+            
             if (_inputReader)
             {
                 _inputReader.MoveClickedEvent -= OnMoveClicked;

@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace _Project._Code
 {
-    // обновить положение камеры
-    
     public class Bootstrap : MonoBehaviour
     {
+        private const string LogKey = "Bootstrap";
+        
         [SerializeField] private Transform _camera;
         [SerializeField] private Vector3 _gridSpawnPosition = Vector3.zero;
         
@@ -34,6 +34,8 @@ namespace _Project._Code
             {
                 return;
             }
+
+            SetupCameraPosition();
             
             _gridController = new GridController(
                 new GridControllerParams(
@@ -43,15 +45,21 @@ namespace _Project._Code
                     _inputReader,
                     _gridSpawnPosition));
             
-            if(_camera)
+            _gridController.Init();
+        }
+
+        private void SetupCameraPosition()
+        {
+            if(!_camera)
             {
-                CameraPositioner.UpdatePosition(
+                Debug.LogError($"[{LogKey}] _camera is null");
+                return;
+            }
+            
+            CameraPositioner.UpdatePosition(
                 _camera, 
                 _configFacade.GridSettingsConfigDto, 
                 _gridSpawnPosition);
-            }
-            
-            _gridController.Init();
         }
 
         private void CreateInputReader()
