@@ -5,21 +5,15 @@ using UnityEngine;
 
 namespace _Project._Code
 {
-    // запуститься проинитить все,
-    // подгрузить конфиги с аддрессаблов
-    // прочитать конфиги 
-    // создать кубы, проинитить их
     // обновить положение камеры
-    
-    // обновлять визуал по нажатию кнопок
     
     public class Bootstrap : MonoBehaviour
     {
-        private const string LogKey = "Bootstrap";
+        [SerializeField] private Transform _camera;
+        [SerializeField] private Vector3 _gridSpawnPosition = Vector3.zero;
         
-        [SerializeField] private InputReader _inputReader;
-        
-        private AssetProvider _assetProvider = new AssetProvider();
+        private readonly AssetProvider _assetProvider = new AssetProvider();
+        private InputReader _inputReader;
         private ConfigFacade _configFacade;
         private GridController _gridController;
         
@@ -30,13 +24,7 @@ namespace _Project._Code
 
         private void Init()
         {
-            if (!_inputReader)
-            {
-                Debug.LogError($"[{LogKey}] _inputReader is null");
-                return;
-            }
-
-            _inputReader.MoveClickedEvent += OnMoveClicked;
+            CreateInputReader();
             
             _configFacade = new ConfigFacade(_assetProvider);
             
@@ -46,40 +34,35 @@ namespace _Project._Code
             {
                 return;
             }
-
+            
             _gridController = new GridController(
                 new GridControllerParams(
                     _configFacade.GridData,
                     _assetProvider,
-                    _configFacade.SettingsConfigDto,
-                    Vector3.zero));
+                    _configFacade.GridSettingsConfigDto,
+                    _inputReader,
+                    _gridSpawnPosition));
+            
+            if(_camera)
+            {
+                CameraPositioner.UpdatePosition(
+                _camera, 
+                _configFacade.GridSettingsConfigDto, 
+                _gridSpawnPosition);
+            }
             
             _gridController.Init();
         }
 
-        private void OnMoveClicked(Vector2 input)
+        private void CreateInputReader()
         {
-            if (input == Vector2.zero)
-            {
-                return;
-            }
-
-            var dir = DirectionCorrector.GetDirection(input);
-            
-            if (dir == InputDirection.None)
-            {
-                return;
-            }
-
-            _gridController?.UpdateOnMove(dir);
+            _inputReader = new GameObject("InputReader").AddComponent<InputReader>();
+            _inputReader.transform.parent = transform.parent;
         }
 
         private void OnDestroy()
         {
-            if (_inputReader)
-            {
-                _inputReader.MoveClickedEvent -= OnMoveClicked;
-            }
+            _gridController?.Dispose();
             _assetProvider?.Dispose();
         }
     }

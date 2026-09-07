@@ -1,14 +1,18 @@
+using System;
 using _Project._Code.Configs;
 using InputSystem;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Project._Code._Grid
 {
-    public class GridController
+    public class GridController : IDisposable
     {
+        private const string LogKey = "GridController";
+        private readonly InputReader _inputReader;
         private readonly AssetProvider _assetProvider;
         private readonly GridData _data;
-        private readonly SettingsConfigDto _settingsConfigDto;
+        private readonly GridSettingsConfigDto _gridSettingsConfigDto;
         private GridSpawner _spawner;
         private readonly Vector3 _spawnPosition;
         private Visualizer _visualizer;
@@ -19,18 +23,27 @@ namespace _Project._Code._Grid
             _data = constructParams.Data;
             _assetProvider = constructParams.AssetProvider;
             _spawnPosition = constructParams.SpawnPosition;
-            _settingsConfigDto =  constructParams.SettingsConfigDto;
+            _gridSettingsConfigDto =  constructParams.GridSettingsConfigDto;
+            _inputReader = constructParams.InputReader;
         }
 
         public void Init()
         {
+            if (!_inputReader)
+            {
+                Debug.LogError($"[{LogKey}] _inputReader is null");
+                return;
+            }
+
+            _inputReader.MoveClickedEvent += OnMoveClicked;
+            
             _spawner = new GridSpawner(
                 _assetProvider,
-                _settingsConfigDto);
+                _gridSettingsConfigDto);
             
             _visualizer = new Visualizer(
                 _data,
-                _settingsConfigDto,
+                _gridSettingsConfigDto,
                 _spawner.SpawnCubes(_spawnPosition));
 
             RandomStartIndex();
@@ -38,7 +51,24 @@ namespace _Project._Code._Grid
             UpdateVisual();
         }
 
-        public void UpdateOnMove(InputDirection direction)
+        private void OnMoveClicked(Vector2 input)
+        {
+            if (input == Vector2.zero)
+            {
+                return;
+            }
+
+            var dir = DirectionCorrector.GetDirection(input);
+            
+            if (dir == InputDirection.None)
+            {
+                return;
+            }
+
+            UpdateOnMove(dir);
+        }
+        
+        private void UpdateOnMove(InputDirection direction)
         {
             _currentIndex = _data.GetNeighbourIndex(_currentIndex, direction);
             UpdateVisual();
@@ -52,6 +82,14 @@ namespace _Project._Code._Grid
         private void RandomStartIndex()
         {
             _currentIndex = Random.Range(0, _data.Count);
+        }
+
+        public void Dispose()
+        {
+            if (_inputReader)
+            {
+                _inputReader.MoveClickedEvent -= OnMoveClicked;
+            }
         }
     }
 }

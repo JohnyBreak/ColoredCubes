@@ -6,13 +6,13 @@ namespace _Project._Code._Grid
     public class GridSpawner
     {
         private readonly AssetProvider _assetProvider;
-        private readonly SettingsConfigDto _settingsConfigDto;
+        private readonly GridSettingsConfigDto _gridSettingsConfigDto;
 
         public GridSpawner(AssetProvider assetProvider,
-            SettingsConfigDto settingsConfigDto)
+            GridSettingsConfigDto gridSettingsConfigDto)
         {
             _assetProvider = assetProvider;
-            _settingsConfigDto = settingsConfigDto;
+            _gridSettingsConfigDto = gridSettingsConfigDto;
         }
 
         public CubeView[] SpawnCubes(Vector3 originPosition)
@@ -22,16 +22,16 @@ namespace _Project._Code._Grid
             var cubesParent = new GameObject("Cubes");
             cubesParent.transform.position = originPosition;
 
-            var totalCubes = _settingsConfigDto.GridSize * _settingsConfigDto.GridSize;
+            var totalCubes = _gridSettingsConfigDto.GridSize * _gridSettingsConfigDto.GridSize;
             var cubeInstances = new CubeView[totalCubes];
 
-            var halfGrid = (_settingsConfigDto.GridSize - 1) * 0.5f;
-            var spacing = _settingsConfigDto.Spacing;
+            var halfGrid = (_gridSettingsConfigDto.GridSize - 1) * 0.5f;
+            var spacing = _gridSettingsConfigDto.Spacing;
 
             for (var i = 0; i < totalCubes; i++)
             {
-                var x = i % _settingsConfigDto.GridSize;
-                var z = (_settingsConfigDto.GridSize - 1) - (i / _settingsConfigDto.GridSize);
+                var x = i % _gridSettingsConfigDto.GridSize;
+                var z = (_gridSettingsConfigDto.GridSize - 1) - (i / _gridSettingsConfigDto.GridSize);
 
                 var cubeInstance = Object.Instantiate(prefab, cubesParent.transform);
                 cubeInstance.name = $"Cube: {x}x{z}";

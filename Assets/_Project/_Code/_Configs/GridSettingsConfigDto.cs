@@ -7,7 +7,7 @@ namespace _Project._Code.Configs
 {
     [Serializable]
     [JsonObject(MemberSerialization.Fields)]
-    public class SettingsConfigDto
+    public class GridSettingsConfigDto
     {
         [SerializeField, JsonProperty("gridSize")]
         private int m_GridSize;

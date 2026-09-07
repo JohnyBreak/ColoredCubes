@@ -10,10 +10,10 @@ namespace _Project._Code._Common
         private AssetProvider _assetProvider;
         private ConfigReader _configReader = new ConfigReader();
         private GridData _gridData;
-        private SettingsConfigDto _settingsConfigDto;
+        private GridSettingsConfigDto _gridSettingsConfigDto;
 
         public GridData GridData => _gridData;
-        public SettingsConfigDto SettingsConfigDto => _settingsConfigDto;
+        public GridSettingsConfigDto GridSettingsConfigDto => _gridSettingsConfigDto;
         
         public ConfigFacade(AssetProvider assetProvider)
         {
@@ -24,12 +24,17 @@ namespace _Project._Code._Common
         {
             LoadSettingsConfig();
 
+            if (_gridSettingsConfigDto == null)
+            {
+                return;
+            }
+            
             LoadGridData();
         }
         
         public bool IsValid()
         {
-            if (_settingsConfigDto == null)
+            if (_gridSettingsConfigDto == null)
             {
                 Debug.LogError($"[{LogKey}] _settingsConfigDto == null");
                 return false;
@@ -74,7 +79,7 @@ namespace _Project._Code._Common
                 return;
             }
 
-            var result = _configReader.Deserialize<SettingsConfigDto>(textResult.Object);
+            var result = _configReader.Deserialize<GridSettingsConfigDto>(textResult.Object);
 
             if (!result.IsSuccess)
             {
@@ -82,7 +87,7 @@ namespace _Project._Code._Common
                 return;
             }
 
-            _settingsConfigDto = result.Object;
+            _gridSettingsConfigDto = result.Object;
         }
 
         private Result<string> GetConfigText(string configKey)
@@ -91,13 +96,13 @@ namespace _Project._Code._Common
             
             if (config == null)
             {
-                Debug.LogError($"[{LogKey}] settingsConfig == null");
+                Debug.LogError($"[{LogKey}] config with key {configKey} is null");
                 return Result<string>.Fail();
             }
             
             if (string.IsNullOrEmpty(config.text))
             {
-                Debug.LogError($"[{LogKey}] settingsConfig text is null or empty");
+                Debug.LogError($"[{LogKey}] config with key {configKey} text is null or empty");
                 return Result<string>.Fail();
             }
 

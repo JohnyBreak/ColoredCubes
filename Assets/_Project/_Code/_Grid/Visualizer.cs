@@ -7,17 +7,17 @@ namespace _Project._Code._Grid
     {
         private const string LogKey = "Visualizer";
         private readonly GridData _data;
-        private readonly SettingsConfigDto _settingsConfigDto;
+        private readonly GridSettingsConfigDto _gridSettingsConfigDto;
         private readonly MaterialsContainer _materialsContainer = new MaterialsContainer();
         private CubeView[] _cubeInstances;
 
         public Visualizer(
             GridData data,
-            SettingsConfigDto settingsConfigDto,
+            GridSettingsConfigDto gridSettingsConfigDto,
             CubeView[] grid)
         {
             _data = data;
-            _settingsConfigDto = settingsConfigDto;
+            _gridSettingsConfigDto = gridSettingsConfigDto;
             _cubeInstances = grid;
         }
 
@@ -29,7 +29,7 @@ namespace _Project._Code._Grid
                 return;
             }
 
-            var indexes = _data.GetArea(currentIndex, _settingsConfigDto.GridSize);
+            var indexes = _data.GetArea(currentIndex, _gridSettingsConfigDto.GridSize);
             
             if (_cubeInstances.Length != indexes.Length)
             {
@@ -54,8 +54,8 @@ namespace _Project._Code._Grid
         {
             color = Color.white;
 
-            if (_settingsConfigDto.Colors == null ||
-                !_settingsConfigDto.Colors.TryGetValue(digit.ToString(), out var hexColor))
+            if (_gridSettingsConfigDto.Colors == null ||
+                !_gridSettingsConfigDto.Colors.TryGetValue(digit.ToString(), out var hexColor))
             {
                 return false;
             }
