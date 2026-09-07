@@ -1,4 +1,5 @@
 using _Project._Code.Configs;
+using InputSystem;
 using UnityEngine;
 
 namespace _Project._Code._Grid
@@ -11,9 +12,7 @@ namespace _Project._Code._Grid
         private GridSpawner _spawner;
         private readonly Vector3 _spawnPosition;
         private Visualizer _visualizer;
-        private int _currentIndex = 0;
-        
-        // move grid on inputs
+        private int _currentIndex;
 
         public GridController(GridControllerParams constructParams)
         {
@@ -33,8 +32,26 @@ namespace _Project._Code._Grid
                 _data,
                 _settingsConfigDto,
                 _spawner.SpawnCubes(_spawnPosition));
-            
+
+            RandomStartIndex();
+
+            UpdateVisual();
+        }
+
+        public void UpdateOnMove(InputDirection direction)
+        {
+            _currentIndex = _data.GetNeighbourIndex(_currentIndex, direction);
+            UpdateVisual();
+        }
+
+        private void UpdateVisual()
+        {
             _visualizer.UpdateVisuals(_currentIndex);
+        }
+
+        private void RandomStartIndex()
+        {
+            _currentIndex = Random.Range(0, _data.Count);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace _Project._Code
         
         private AssetProvider _assetProvider = new AssetProvider();
         private ConfigFacade _configFacade;
+        private GridController _gridController;
         
         private void Start()
         {
@@ -29,6 +30,14 @@ namespace _Project._Code
 
         private void Init()
         {
+            if (!_inputReader)
+            {
+                Debug.LogError($"[{LogKey}] _inputReader is null");
+                return;
+            }
+
+            _inputReader.MoveClickedEvent += OnMoveClicked;
+            
             _configFacade = new ConfigFacade(_assetProvider);
             
             _configFacade.Init();
@@ -38,29 +47,39 @@ namespace _Project._Code
                 return;
             }
 
-            var controller = new GridController(
+            _gridController = new GridController(
                 new GridControllerParams(
                     _configFacade.GridData,
                     _assetProvider,
                     _configFacade.SettingsConfigDto,
                     Vector3.zero));
             
-            controller.Init();
+            _gridController.Init();
         }
 
-        private void Update()
+        private void OnMoveClicked(Vector2 input)
         {
-            var movement = _inputReader.GetMovement();
-            if (movement == Vector2.zero)
+            if (input == Vector2.zero)
             {
                 return;
             }
+
+            var dir = DirectionCorrector.GetDirection(input);
             
-            Debug.Log(DirectionCorrector.GetDirection(movement).ToString());
+            if (dir == InputDirection.None)
+            {
+                return;
+            }
+
+            _gridController?.UpdateOnMove(dir);
         }
 
         private void OnDestroy()
         {
+            if (_inputReader)
+            {
+                _inputReader.MoveClickedEvent -= OnMoveClicked;
+            }
             _assetProvider?.Dispose();
         }
     }
