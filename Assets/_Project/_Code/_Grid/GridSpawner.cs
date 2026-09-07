@@ -46,7 +46,8 @@ namespace _Project._Code._Grid
 
                 cubeInstances[i] = cubeInstance.GetComponent<CubeView>();
             }
-
+            
+            _assetProvider.Release(AddressablesNames.CubePrefab);
             return cubeInstances;
         }
     }

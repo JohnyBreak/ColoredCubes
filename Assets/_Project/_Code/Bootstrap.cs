@@ -1,5 +1,5 @@
+using _Project._Code._Common;
 using _Project._Code._Grid;
-using _Project._Code.Configs;
 using InputSystem;
 using UnityEngine;
 
@@ -9,18 +9,18 @@ namespace _Project._Code
     // подгрузить конфиги с аддрессаблов
     // прочитать конфиги 
     // создать кубы, проинитить их
+    // обновить положение камеры
     
     // обновлять визуал по нажатию кнопок
     
     public class Bootstrap : MonoBehaviour
     {
         private const string LogKey = "Bootstrap";
+        
         [SerializeField] private InputReader _inputReader;
         
         private AssetProvider _assetProvider = new AssetProvider();
-        private ConfigReader _configReader = new ConfigReader();
-        private GridData _gridData;
-        private SettingsConfigDto _settingsConfigDto;
+        private ConfigFacade _configFacade;
         
         private void Start()
         {
@@ -29,84 +29,23 @@ namespace _Project._Code
 
         private void Init()
         {
-            LoadSettingsConfig();
-
-            LoadGridData();
-
-            if (_settingsConfigDto == null)
-            {
-                Debug.LogError($"[{LogKey}] _settingsConfigDto == null");
-                return;
-            }
+            _configFacade = new ConfigFacade(_assetProvider);
             
-            if (_gridData == null)
+            _configFacade.Init();
+
+            if (!_configFacade.IsValid())
             {
-                Debug.LogError($"[{LogKey}] _gridData == null");
                 return;
             }
 
             var controller = new GridController(
                 new GridControllerParams(
-                    _gridData,
+                    _configFacade.GridData,
                     _assetProvider,
-                    _settingsConfigDto,
+                    _configFacade.SettingsConfigDto,
                     Vector3.zero));
             
             controller.Init();
-        }
-
-        private void LoadGridData()
-        {
-            var config = _assetProvider.LoadAssetSync<TextAsset>(AddressablesNames.GridConfig);
-            
-            if (config == null)
-            {
-                Debug.LogError($"[{LogKey}] gridConfig == null");
-                return;
-            }
-            
-            if (string.IsNullOrEmpty(config.text))
-            {
-                Debug.LogError($"[{LogKey}] gridConfig text is null or empty");
-                return;
-            }
-
-            var parser = new GridTextParser();
-            var result = parser.Parse(config.text);
-            
-            if (!result.IsSuccess)
-            {
-                Debug.LogError($"[{LogKey}] GridData is not parsed");
-                return;
-            }
-
-            _gridData = result.Object;
-        }
-
-        private void LoadSettingsConfig()
-        {
-            var config = _assetProvider.LoadAssetSync<TextAsset>(AddressablesNames.SettingsConfig);
-            
-            if (config == null)
-            {
-                Debug.LogError($"[{LogKey}] settingsConfig == null");
-                return;
-            }
-            if (string.IsNullOrEmpty(config.text))
-            {
-                Debug.LogError($"[{LogKey}] settingsConfig text is null or empty");
-                return;
-            }
-
-            var result = _configReader.Deserialize<SettingsConfigDto>(config.text);
-
-            if (!result.IsSuccess)
-            {
-                Debug.LogError($"[{LogKey}] SettingsConfigDto is not deserialized");
-                return;
-            }
-
-            _settingsConfigDto = result.Object;
         }
 
         private void Update()
@@ -118,6 +57,11 @@ namespace _Project._Code
             }
             
             Debug.Log(DirectionCorrector.GetDirection(movement).ToString());
+        }
+
+        private void OnDestroy()
+        {
+            _assetProvider?.Dispose();
         }
     }
 }

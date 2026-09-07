@@ -1,13 +1,7 @@
-using System;
-using _Project._Code._Common;
-using UnityEngine;
-
 namespace _Project._Code._Grid
 {
     public class GridData
     {
-        private const string LogKey = "GridData";
-        
         private int[] _data;
         private int _width;
         private int _height;
@@ -18,27 +12,8 @@ namespace _Project._Code._Grid
             _width = width;
             _height = height;
         }
-
-        public Result<int[]> GetIndexes(int currentIndex, int gridSize)
-        {
-            if (currentIndex < 0)
-            {
-                Debug.LogError($"[{LogKey}] pivotIndex < 0");
-                return Result<int[]>.Fail();
-            }
-
-            int size = gridSize * gridSize;
-            var indexes = new int[size];
-
-            for (int i = 0; i < size; i++)
-            {
-                indexes[i] = _data[i];
-            }
-            
-            return Result<int[]>.Success(indexes);
-        }
         
-        public int[] GetAreaAround(int centerIndex, int areaSize)
+        public int[] GetArea(int centerIndex, int areaSize)
         {
             var result = new int[areaSize * areaSize];
             var halfSize = areaSize / 2;
